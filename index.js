@@ -16,6 +16,9 @@ app.use(bodyParser.json());
 connectDB();
 
 app.post('/api/form-submit', submitForm);
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
