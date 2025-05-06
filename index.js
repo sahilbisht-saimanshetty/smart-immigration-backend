@@ -17,7 +17,7 @@ connectDB();
 
 app.post('/api/form-submit', submitForm);
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.status(200).json({message :'API is running...'});
 });
 
 app.listen(PORT, () => {
