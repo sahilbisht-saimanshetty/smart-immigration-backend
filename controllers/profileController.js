@@ -65,7 +65,7 @@ const submitForm = async (req, res) => {
     await newProfile.save();
 
     const taskData = {
-      taskName: `${basicDetails.name} ||  SIUK Profile Query`,
+      taskName: `${basicDetails.name} ||  SIUK Inquiry`,
       description: createTaskDescription(formData),
     };
 
