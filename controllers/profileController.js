@@ -1,22 +1,22 @@
 import Profile from "../models/profileModel.js";
 import { createTask } from "../helpers/clickup.js";
 
-
 const createTaskDescription = (profileData) => {
   const { basicDetails, generalDetails } = profileData;
-  
+
   let description = `
     **Basic Details**:
     - Name: ${basicDetails.name}
     - Email: ${basicDetails.email}
     - Phone: ${basicDetails.phone || 'Not provided'}
-    - linkedin: ${basicDetails.linkedin || 'Not provided'}
+    - LinkedIn: ${basicDetails.linkedin || 'Not provided'}
     
     **General Details**:
     - Purpose: ${generalDetails.purpose || 'Not provided'}
     - Field of Work: ${generalDetails.fieldOfWork || 'Not provided'}
     - Service Interested In: ${generalDetails.service || 'Not provided'}
   `;
+
   if (generalDetails.qualifications) {
     description += `
     **Qualifications**:
@@ -35,25 +35,18 @@ const createTaskDescription = (profileData) => {
 
   description += `
     **How They Found Us**: ${generalDetails.foundUs || 'Not specified'}
-    
     **Consent Given**: ${generalDetails.consent ? 'Yes' : 'No'}
   `;
 
   return description;
 };
 
-
-
 const submitForm = async (req, res) => {
   try {
     const formData = req.body;
-
     const { basicDetails, generalDetails } = formData;
 
-    if (
-      !basicDetails?.name?.trim() ||
-      !basicDetails?.email?.trim()
-    ) {
+    if (!basicDetails?.name?.trim() || !basicDetails?.email?.trim()) {
       return res.status(400).json({ message: 'Name and Email are required in basicDetails' });
     }
 
@@ -65,11 +58,12 @@ const submitForm = async (req, res) => {
     await newProfile.save();
 
     const taskData = {
-      taskName: `${basicDetails.name} ||  SIUK Inquiry`,
+      taskName: `${basicDetails.name} || SIUK Inquiry`,
       description: createTaskDescription(formData),
+      profileData: formData,
     };
 
-    await createTask(taskData); 
+    await createTask(taskData);
 
     res.status(201).json({ message: 'Form submitted successfully', profile: newProfile });
   } catch (error) {
