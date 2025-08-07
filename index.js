@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://smartimmigrant.com',
+  origin: ['https://smartimmigrant.com' , 'https://uk.smartimmigrant.com'],
 }));
 
 app.use(bodyParser.json());
