@@ -81,3 +81,58 @@ export const createTask = async ({ taskName, description, profileData }) => {
     throw error;
   }
 };
+
+
+export const createCustomFieldsIfNotExist = async () => {
+  try {
+  const customFieldNames = [
+  'Full Name',
+  'Email ID',
+  'Contact Number',
+  'LinkedIn',
+  'Purpose',
+  'Field of Work',
+  'Service Interested in',
+  'Extra Qualification',
+  'Qualification',
+  'GTV Applied',
+  'Current VISA Status',
+  'Source',
+  'Consent'
+];
+
+    // 1. Get existing custom fields in the list
+    const existingFieldsResponse = await clickUpApi.get(`/list/${process.env.CLICK_UP_LIST_ID}/field`);
+    const existingFields = existingFieldsResponse.data.fields || [];
+    
+    // 2. Filter out fields that already exist
+    const existingFieldNames = existingFields.map((field) => field.name.toLowerCase());
+    const fieldsToCreate = customFieldNames.filter(
+      name => !existingFieldNames.includes(name.toLowerCase())
+    );
+
+    if (fieldsToCreate.length === 0) {
+      console.log("All custom fields already exist in the list");
+      return;
+    }
+
+    // 3. Create missing fields
+    for (const fieldName of fieldsToCreate) {
+      try {
+        const payload = {
+          name: fieldName,
+          type: 'text'
+        };
+
+        await clickUpApi.post(`/list/${process.env.CLICK_UP_LIST_ID}/field`, payload);
+        console.log(`Created custom field: ${fieldName}`);
+      } catch (error) {
+        console.error(`Failed to create field ${fieldName}:`, error.response?.data || error.message);
+      }
+    }
+
+  } catch (error) {
+    console.error("Error in createCustomFieldsIfNotExist:", error.response?.data || error.message);
+    throw error;
+  }
+}

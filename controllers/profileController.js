@@ -1,5 +1,5 @@
 import Profile from "../models/profileModel.js";
-import { createTask } from "../helpers/clickup.js";
+import { createCustomFieldsIfNotExist, createTask } from "../helpers/clickup.js";
 
 const createTaskDescription = (profileData) => {
   const { basicDetails, generalDetails } = profileData;
@@ -71,5 +71,87 @@ const submitForm = async (req, res) => {
     res.status(500).json({ message: 'Something went wrong', error });
   }
 };
+
+export const getProfilesList = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.body;
+
+    if (!page || !limit) {
+      return res.status(400).json({ 
+        message: "Pagination parameters 'page' and 'limit' are required" 
+      });
+    }
+    
+    // Check email in headers
+    const email = req.headers.email;
+    if (email !== "sahil.b@cachelabs.io") {
+      return res.status(403).json({ 
+        message: "Forbidden: You are not authorized to access this resource" 
+      });
+    }
+
+    // Convert to numbers and validate
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    
+    if (isNaN(pageNum) || isNaN(limitNum) || pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({ 
+        message: "Invalid pagination parameters" 
+      });
+    }
+
+    // Calculate skip value
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get total count for pagination info
+    const total = await Profile.countDocuments();
+    const totalPages = Math.ceil(total / limitNum);
+
+    // Fetch profiles with pagination
+    const profiles = await Profile.find()
+      .skip(skip)
+      .limit(limitNum)
+      .lean(); // Using lean() for better performance
+
+    // Add createdAt if not present
+    const result = profiles.map(profile => ({
+      ...profile,
+      createdAt: profile.createdAt || profile._id.getTimestamp()
+    }));
+
+    res.status(200).json({
+      message: "Profiles fetched successfully",
+      data: {
+        profiles: result,
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalItems: total,
+          itemsPerPage: limitNum,
+          hasNextPage: pageNum < totalPages,
+          hasPreviousPage: pageNum > 1
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error fetching profiles:", error);
+    res.status(500).json({ 
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+
+export const createCustomField = async (req , res) => {
+  try {
+      const response = await createCustomFieldsIfNotExist();
+      return res.status(200).json({message : 'Custom fields created successfully'});
+    } catch (error) {
+    return res.status(500).json({ message: 'Something went wrong', error });
+  }
+};
+
 
 export default submitForm;

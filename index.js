@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import submitForm from './controllers/profileController.js';
+import submitForm, { createCustomField, getProfilesList } from './controllers/profileController.js';
 import connectDB from './dbConnect.js';
 
 dotenv.config();
@@ -19,6 +19,8 @@ app.use(bodyParser.json());
 connectDB();
 
 app.post('/api/form-submit', submitForm);
+app.get('/api/profiles', getProfilesList);
+app.get('/api/custom-fields', createCustomField);
 
 app.get('/', (req, res) => {
   res.status(200).json({message :'API is running...'});

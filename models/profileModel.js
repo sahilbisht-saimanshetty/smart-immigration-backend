@@ -1,4 +1,3 @@
-
 import mongoose from "mongoose";
 
 const ProfileSchema = new mongoose.Schema({
@@ -52,7 +51,7 @@ const ProfileSchema = new mongoose.Schema({
       default: false
     }
   }
-});
+}, { timestamps: true }); 
 
 const Profile = mongoose.model('Profile', ProfileSchema);
 
